@@ -9,9 +9,9 @@ from airflow.utils.trigger_rule import TriggerRule
 from hdfs import InsecureClient
 
 # Constants
-TABLE_NAME = Variable.get('student52_table_name')
+TABLE_NAME = Variable.get('student57_table_name')
 HDFS_URL = 'http://ca-oshspark-n-01.local:9870'
-OUTPUT_FILEPATH = '/output/st52.txt'
+OUTPUT_FILEPATH = '/output/st57.txt'
 
 
 def read_txt_file_from_hdfs(hdfs_url, hdfs_dir):
@@ -22,7 +22,7 @@ def read_txt_file_from_hdfs(hdfs_url, hdfs_dir):
 
 
 dag = DAG(
-    dag_id='student52_hw6',
+    dag_id='student57_hw6',
     schedule_interval='0 */4 * * *',
     start_date=days_ago(0, hour=4),
     default_args={'retries': 0},
@@ -39,7 +39,7 @@ check_table_existence = HiveOperator(
 
 send_email_missing_table = EmailOperator(
     task_id='send_email_missing_table',
-    to='student52@gmail.com',
+    to='student57@gmail.com',
     subject=f'Table {TABLE_NAME} Missing in Hadoop',
     html_content='The specified table does not exist in Hadoop.',
     trigger_rule=TriggerRule.ALL_FAILED,
@@ -50,7 +50,7 @@ count_table_rows = SparkSubmitOperator(
     task_id='count_table_rows',
     conn_id='spark_cluster',
     java_class='homework6.CountTableRows',
-    application='/opt/airflow/dags/scripts/st52-jar-with-dependencies.jar',
+    application='/opt/airflow/dags/scripts/st57-jar-with-dependencies.jar',
     application_args=[TABLE_NAME, OUTPUT_FILEPATH],
     trigger_rule=TriggerRule.ALL_SKIPPED,
     dag=dag,
@@ -66,7 +66,7 @@ transfer_count = PythonOperator(
 
 send_email_row_count = EmailOperator(
     task_id='send_email_row_count',
-    to='student52@gmail.com',
+    to='student57@gmail.com',
     subject=f'Row Count of Hadoop Table {TABLE_NAME}',
     html_content='''<h3>Row Count:</h3><p>{{ task_instance.xcom_pull(task_ids='transfer_count') }}</p>''',
     trigger_rule=TriggerRule.ALL_SUCCESS,
